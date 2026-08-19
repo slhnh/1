@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>小楠的治愈花园</title>
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: #47696a;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background:
+        radial-gradient(circle at 10% 12%, rgba(255,255,255,.96), transparent 25%),
+        radial-gradient(circle at 90% 20%, rgba(255,245,224,.85), transparent 24%),
+        linear-gradient(160deg, #dff5ee 0%, #eaf8f2 40%, #fff7e8 100%);
+    }
+
+    .petal {
+      position: fixed;
+      top: -10vh;
+      z-index: 1;
+      pointer-events: none;
+      opacity: .75;
+      animation: fall linear infinite;
+      filter: drop-shadow(0 2px 2px rgba(99,150,133,.13));
+    }
+
+    @keyframes fall {
+      to {
+        transform: translate3d(var(--drift), 112vh, 0) rotate(420deg);
+      }
+    }
+
+    .hero {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 52px 22px;
+      text-align: center;
+    }
+
+    .card {
+      width: min(680px, 100%);
+      padding: 42px 24px 36px;
+      border: 1px solid rgba(255,255,255,.78);
+      border-radius: 32px;
+      background: rgba(255,255,255,.46);
+      box-shadow: 0 18px 55px rgba(85,139,125,.18);
+      backdrop-filter: blur(9px);
+    }
+
+    .tiny {
+      letter-spacing: 4px;
+      font-size: 12px;
+      color: #7daaa0;
+    }
+
+    h1 {
+      margin: 16px 0 12px;
+      color: #4d8d7f;
+      font-family: "STKaiti", "KaiTi", serif;
+      font-size: clamp(34px, 9vw, 58px);
+      font-weight: 500;
+    }
+
+    .subtitle {
+      margin: 0 auto;
+      max-width: 440px;
+      line-height: 1.9;
+      color: #658983;
+      font-size: 16px;
+    }
+
+    .flower {
+      position: relative;
+      width: 130px;
+      height: 130px;
+      margin: 34px auto 22px;
+      animation: float 3.5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      50% { transform: translateY(-10px) rotate(2deg); }
+    }
+
+    .petals {
+      position: absolute;
+      inset: 0;
+      animation: bloom 2.4s ease-out both;
+    }
+
+    @keyframes bloom {
+      from { transform: scale(.25) rotate(-30deg); opacity: 0; }
+      to { transform: scale(1) rotate(0); opacity: 1; }
+    }
+
+    .p {
+      position: absolute;
+      width: 58px;
+      height: 78px;
+      left: 36px;
+      top: 4px;
+      border-radius: 58px 58px 16px 58px;
+      transform-origin: 29px 61px;
+      background: linear-gradient(135deg, #fffdf1, #ffd9a9);
+      box-shadow: inset -8px -6px 16px rgba(238,167,111,.18);
+    }
+
+    .p:nth-child(1) { transform: rotate(0deg); }
+    .p:nth-child(2) { transform: rotate(60deg); }
+    .p:nth-child(3) { transform: rotate(120deg); }
+    .p:nth-child(4) { transform: rotate(180deg); }
+    .p:nth-child(5) { transform: rotate(240deg); }
+    .p:nth-child(6) { transform: rotate(300deg); }
+
+    .core {
+      position: absolute;
+      left: 43px;
+      top: 43px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 34% 30%, #fff8ae, #eebd52);
+      box-shadow: 0 0 22px rgba(240,193,78,.6);
+    }
+
+    .open-btn, .next-btn {
+      display: inline-block;
+      border: 0;
+      border-radius: 99px;
+      padding: 14px 25px;
+      cursor: pointer;
+      color: white;
+      font: inherit;
+      font-size: 15px;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, #7fc5ae, #68aeb8);
+      box-shadow: 0 9px 20px rgba(83,158,140,.28);
+      transition: .25s ease;
+    }
+
+    .open-btn:hover, .next-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 13px 25px rgba(83,158,140,.35);
+    }
+
+    .garden {
+      position: relative;
+      z-index: 2;
+      display: none;
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 12px 20px 80px;
+    }
+
+    .garden.show { display: block; animation: rise .8s ease both; }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(25px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .garden-title {
+      text-align: center;
+      color: #4e8c7e;
+      font-family: "STKaiti", "KaiTi", serif;
+      font-size: 32px;
+      font-weight: 500;
+      margin: 24px 0 8px;
+    }
+
+    .garden-tip {
+      text-align: center;
+      color: #76958e;
+      margin: 0 0 28px;
+      font-size: 14px;
+    }
+
+    .message-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    .message-flower {
+      min-height: 172px;
+      padding: 20px 15px;
+      border: 1px solid rgba(255,255,255,.85);
+      border-radius: 24px;
+      cursor: pointer;
+      text-align: center;
+      background: rgba(255,255,255,.58);
+      box-shadow: 0 10px 28px rgba(101,153,137,.13);
+      transition: .3s ease;
+    }
+
+    .message-flower:hover {
+      transform: translateY(-5px);
+      background: rgba(255,255,255,.78);
+    }
+
+    .message-flower .icon {
+      display: block;
+      margin-bottom: 12px;
+      font-size: 46px;
+      transition: transform .5s ease;
+    }
+
+    .message-flower.active .icon { transform: rotate(12deg) scale(1.15); }
+
+    .message-flower p {
+      margin: 0;
+      min-height: 48px;
+      line-height: 1.75;
+      color: #5b7974;
+      font-size: 14px;
+    }
+
+    .photo-section {
+      margin-top: 50px;
+      text-align: center;
+    }
+
+    .photo-section h2 {
+      color: #4e8c7e;
+      font-family: "STKaiti", "KaiTi", serif;
+      font-size: 30px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .photo-section > p {
+      color: #77958f;
+      font-size: 14px;
+      margin: 0 0 22px;
+    }
+
+    .photos {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 13px;
+    }
+
+    .photo {
+      overflow: hidden;
+      aspect-ratio: 1 / 1.2;
+      border: 5px solid rgba(255,255,255,.86);
+      border-radius: 18px;
+      background: white;
+      box-shadow: 0 8px 22px rgba(70,115,105,.17);
+    }
+
+    .photo:first-child { grid-column: span 2; aspect-ratio: 1.55 / 1; }
+
+    .photo img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      transition: transform .6s ease;
+    }
+
+    .photo:hover img { transform: scale(1.07); }
+
+    .letter {
+      margin: 52px auto 0;
+      max-width: 680px;
+      padding: 36px 25px;
+      text-align: center;
+      border-radius: 28px;
+      background: linear-gradient(145deg, rgba(255,255,255,.82), rgba(255,247,226,.74));
+      box-shadow: 0 12px 32px rgba(97,143,127,.14);
+    }
+
+    .letter .heart { font-size: 30px; }
+    .letter h2 {
+      color: #578e81;
+      font-family: "STKaiti", "KaiTi", serif;
+      font-size: 29px;
+      font-weight: 500;
+      margin: 12px 0 20px;
+    }
+
+    .letter p {
+      margin: 0 auto 12px;
+      max-width: 510px;
+      color: #54746e;
+      line-height: 2;
+      font-size: 16px;
+    }
+
+    .sign {
+      margin-top: 25px !important;
+      color: #6a9f91 !important;
+      font-family: "STKaiti", "KaiTi", serif;
+      font-size: 19px !important;
+    }
+
+    @media (max-width: 460px) {
+      .card { padding: 36px 18px 30px; }
+      .message-grid { gap: 10px; }
+      .message-flower { min-height: 160px; padding: 16px 9px; }
+      .message-flower p { font-size: 13px; }
+      .photos { gap: 9px; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 飘落的花瓣 -->
+  <div class="petal" style="left:5%; --drift:80px; animation-duration:11s; animation-delay:-2s;">🌸</div>
+  <div class="petal" style="left:17%; --drift:-40px; animation-duration:14s; animation-delay:-8s;">✿</div>
+  <div class="petal" style="left:35%; --drift:95px; animation-duration:12s; animation-delay:-5s;">🌼</div>
+  <div class="petal" style="left:58%; --drift:-75px; animation-duration:15s; animation-delay:-10s;">❀</div>
+  <div class="petal" style="left:78%; --drift:58px; animation-duration:10s; animation-delay:-4s;">🌸</div>
+  <div class="petal" style="left:92%; --drift:-65px; animation-duration:13s; animation-delay:-7s;">✿</div>
+
+  <section class="hero">
+    <div class="card">
+      <div class="tiny">QIXI · FOR XIAONAN</div>
+      <h1>小楠的治愈花园</h1>
+      <p class="subtitle">
+        这一页小小的花园，送给正在休息的你。<br>
+        愿每一朵花，都替我陪你一会儿。
+      </p>
+
+      <div class="flower" aria-label="一朵花">
+        <div class="petals">
+          <i class="p"></i><i class="p"></i><i class="p"></i>
+          <i class="p"></i><i class="p"></i><i class="p"></i>
+        </div>
+        <div class="core"></div>
+      </div>
+
+      <button class="open-btn" onclick="openGarden()">打开我的小花园 ✦</button>
+    </div>
+  </section>
+
+  <main class="garden" id="garden">
+    <h2 class="garden-title">给小楠的六朵小花</h2>
+    <p class="garden-tip">轻轻点开每一朵花，都有一句话想对你说。</p>
+
+    <div class="message-grid">
+      <div class="message-flower" onclick="reveal(this, '在医院的这段时间，什么都不用着急。好好吃饭，好好睡觉，好好把自己照顾好。')">
+        <span class="icon">🌷</span><p>点开这朵花</p>
+      </div>
+      <div class="message-flower" onclick="reveal(this, '不舒服的时候不要一个人硬扛，记得告诉我。你不是一个人，我一直都在。')">
+        <span class="icon">🌼</span><p>点开这朵花</p>
+      </div>
+      <div class="message-flower" onclick="reveal(this, '你小时候笑起来那么可爱，长大后的你也一样，是我心里很珍贵很珍贵的人。')">
+        <span class="icon">🌻</span><p>点开这朵花</p>
+      </div>
+      <div class="message-flower" onclick="reveal(this, '海边的风、沙滩上的心，还有那些闪闪发亮的日子，我们以后还要一起去很多次。')">
+        <span class="icon">🪻</span><p>点开这朵花</p>
+      </div>
+      <div class="message-flower" onclick="reveal(this, '不用担心生病时的自己不够漂亮。对我来说，你平安、舒服、开心，才是最重要的事。')">
+        <span class="icon">🌸</span><p>点开这朵花</p>
+      </div>
+      <div class="message-flower" onclick="reveal(this, '这朵花的花语是：以后不管晴天雨天，我都会陪着你。')">
+        <span class="icon">💐</span><p>点开这朵花</p>
+      </div>
+    </div>
+
+    <section class="photo-section">
+      <h2>花园里的小小回忆</h2>
+      <p>海会记得浪花，沙滩会记得脚印，而我会记得每一个你。</p>
+
+      <div class="photos">
+        <div class="photo"><img src="https://lazyman.yixiaai.com/files/496425/ecbb5093-5447-4131-b10b-886e05671204.jpg" alt="小楠在海边"></div>
+        <div class="photo"><img src="https://lazyman.yixiaai.com/files/496425/9a5339b1-0253-42d1-9242-64974558ed5b.jpg" alt="沙滩上的爱心"></div>
+        <div class="photo"><img src="https://lazyman.yixiaai.com/files/496425/99ce32c5-4cf4-404b-925d-9afb711f7da0.jpg" alt="海边的回忆"></div>
+        <div class="photo"><img src="https://lazyman.yixiaai.com/files/496425/4e01d988-3c71-47e3-adb1-c616f4a27e6c.jpg" alt="小时候的小楠"></div>
+        <div class="photo"><img src="https://lazyman.yixiaai.com/files/496425/094b5afa-2536-4379-b979-aa18fbb7c145.jpg" alt="温柔的小楠"></div>
+        <div class="photo"><img src="https://lazyman.yixiaai.com/files/496425/96a3be22-7a1a-4bb9-b9dc-5ca44bdfbf25.jpg" alt="海边的心"></div>
+      </div>
+    </section>
+
+    <section class="letter">
+      <div class="heart">♡</div>
+      <h2>写给小楠</h2>
+      <p>
+        七夕的银河很远，<br>
+        可我想陪你走过的每一天很近。
+      </p>
+      <p>
+        这段时间，你只管安心休息、慢慢恢复。<br>
+        难过的时候，我陪你；<br>
+        想笑的时候，我也陪你。
+      </p>
+      <p>
+        等你好起来，<br>
+        我们再一起去看海、吹风、踩着浪花走很远很远。
+      </p>
+      <p>
+        小楠，七夕快乐。<br>
+        以后，我会一直陪着你。
+      </p>
+      <p class="sign">—— 永远站在你身边的 邵吕欢</p>
+    </section>
+  </main>
+
+  <script>
+    function openGarden() {
+      const garden = document.getElementById('garden');
+      garden.classList.add('show');
+      setTimeout(() => garden.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+    }
+
+    function reveal(el, text) {
+      el.classList.add('active');
+      el.querySelector('p').textContent = text;
+    }
+  </script>
+</body>
+</html>
